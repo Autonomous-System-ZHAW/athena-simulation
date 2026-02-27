@@ -1,0 +1,5 @@
+bezier
+rich
+textual
+typing_extensions
+platformdirs
