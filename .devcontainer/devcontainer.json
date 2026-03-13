@@ -3,14 +3,15 @@
     "privileged": true,
     "remoteUser": "${localEnv:USERNAME}",
     "build": {
-        "dockerfile": "Dockerfile.dev",
+        "context": "..",
+        "dockerfile": "../src/IsaacSim-ros_workspaces/dockerfiles/ubuntu_24_jazzy_python_312_minimal.dockerfile",
         "args": {
             "USERNAME": "${localEnv:USERNAME}",
             "WS_BASENAME": "${localWorkspaceFolderBasename}"
         }
     },
     "workspaceFolder": "/home/${localEnv:USERNAME}/ros2_ws",
-    "workspaceMount": "source=${localWorkspaceFolder},target=/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename},type=bind",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename}/src,type=bind",
     "customizations": {
         "vscode": {
             "settings": {
@@ -49,20 +50,16 @@
     "containerEnv": {
         "ROS_DOMAIN_ID": "100",
         "GZ_SIM_RESOURCE_PATH": "/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename}/src",
-        "FASTRTPS_DEFAULT_PROFILES_FILE": 
+        "FASTRTPS_DEFAULT_PROFILES_FILE": "/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename}/src/IsaacSim-ros_workspaces/jazzy_ws/fastdds.xml"
     },
     "runArgs": [
-        "--hostname=${localWorkspaceFolderBasename}-devcontainer",
-        "--privileged-"
-        //"--device=/dev/ttyACM0"
+        "--hostname=${localWorkspaceFolderBasename}-devcontainer"
     ],
     "mounts": [
-        // "source=/dev/ttyACM0,target=/dev/ttyACM0,type=bind"
-
     ],
     "features": {
         "ghcr.io/devcontainers/features/git": {}
     },
-    "postCreateCommand": "bash -lc 'mkdir -p src && vcs import src < ${containerWorkspaceFolder}/${localWorkspaceFolderBasename}/ros2.repos --recursive && sudo apt-get update && rosdep update && rosdep install --from-paths . --ignore-src --rosdistro $ROS_DISTRO -r -y'",
+    "postCreateCommand": "sudo apt-get update && rosdep update && rosdep install --from-paths . --ignore-src --rosdistro $ROS_DISTRO -r -y",
     "postStartCommand": "/bin/bash -c 'rm -rf build/ install/ log/ && source /opt/ros/$ROS_DISTRO/setup.bash && colcon build --symlink-install'"
 }
