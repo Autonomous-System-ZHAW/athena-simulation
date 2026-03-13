@@ -1,0 +1,6 @@
+repositories:
+  issac_sim_bridge:
+    type: git
+    url: https://github.com/isaac-sim/IsaacSim-ros_workspaces.git
+    version: main
+    path: issac_sim_bridge

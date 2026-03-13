@@ -1,38 +1,68 @@
 {
-  "name": "ROS2 Jazzy DevContainer",
+    "name": "${localWorkspaceFolderBasename} ROS2 Dev-Container",
+    "privileged": true,
+    "remoteUser": "${localEnv:USERNAME}",
+    "build": {
+        "dockerfile": "Dockerfile.dev",
+        "args": {
+            "USERNAME": "${localEnv:USERNAME}",
+            "WS_BASENAME": "${localWorkspaceFolderBasename}"
+        }
+    },
+    "workspaceFolder": "/home/${localEnv:USERNAME}/ros2_ws",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename},type=bind",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.black-formatter",
+                    "editor.formatOnSave": true,
+                    "editor.formatOnSaveMode": "file"
+                },
+                "files.associations": {
+                    "*.rviz": "yaml",
+                    "*.srdf": "xml",
+                    "*.urdf": "xml",
+                    "*.xacro": "xml",
+                    "*.sdf": "xml",
+                    "*.world": "xml",
+                    "*.repos": "yaml"
+                }
+                
+            },
+            "extensions": [
+                "mhutchie.git-graph",
+                "ms-azuretools.vscode-docker",
+                "ms-python.black-formatter",
+                "ms-iot.vscode-ros",
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-themes",
+                "twxs.cmake",
+                "ms-python.python",
+                "ms-python.debugpy",
+                "ms-python.vscode-pylance",
+                "eamodio.gitlens",
+                "ranch-hand-robotics.rde-pack" // official ROS extension is deprecated, new one by Ranch Hand Robotics
+            ]
+        }
+    },
+    "containerEnv": {
+        "ROS_DOMAIN_ID": "100",
+        "GZ_SIM_RESOURCE_PATH": "/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename}/src",
+        "FASTRTPS_DEFAULT_PROFILES_FILE": 
+    },
+    "runArgs": [
+        "--hostname=${localWorkspaceFolderBasename}-devcontainer",
+        "--privileged-"
+        //"--device=/dev/ttyACM0"
+    ],
+    "mounts": [
+        // "source=/dev/ttyACM0,target=/dev/ttyACM0,type=bind"
 
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
-
-  "workspaceFolder": "/workspaces/ros2_ws",
-
-  "workspaceMount": "source=${localWorkspaceFolder}/src,target=/workspaces/ros2_ws/src,type=bind",
-
-  "runArgs": [
-    "--network=host"
-  ],
-
-  "mounts": [
-    "source=${localWorkspaceFolder}/.devcontainer/cyclonedds.xml,target=/cyclonedds.xml,type=bind"
-  ],
-
-  "containerEnv": {
-    "ROS_DOMAIN_ID": "100",
-    "RMW_IMPLEMENTATION": "rmw_cyclonedds_cpp",
-    "CYCLONEDDS_URI": "file:///cyclonedds.xml"
-  },
-
-  "postStartCommand": "bash -c 'source /opt/ros/jazzy/setup.bash && rosdep install --from-paths src --ignore-src -r -y && colcon build --symlink-install'",
-
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-iot.vscode-ros",
-        "ms-python.python",
-        "ms-vscode.cpptools"
-      ]
-    }
-  }
+    ],
+    "features": {
+        "ghcr.io/devcontainers/features/git": {}
+    },
+    "postCreateCommand": "bash -lc 'mkdir -p src && vcs import src < ${containerWorkspaceFolder}/${localWorkspaceFolderBasename}/ros2.repos --recursive && sudo apt-get update && rosdep update && rosdep install --from-paths . --ignore-src --rosdistro $ROS_DISTRO -r -y'",
+    "postStartCommand": "/bin/bash -c 'rm -rf build/ install/ log/ && source /opt/ros/$ROS_DISTRO/setup.bash && colcon build --symlink-install'"
 }

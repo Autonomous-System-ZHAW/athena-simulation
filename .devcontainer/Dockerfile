@@ -1,21 +1,31 @@
-FROM osrf/ros:jazzy-desktop-full
+FROM osrf/ros:jazzy-desktop-full-noble
 
-# Basis Tools
-RUN apt-get update && apt-get install -y \
-    python3-colcon-common-extensions \
-    python3-rosdep \
-    ros-jazzy-rmw-cyclonedds-cpp \
-    git \
-    && rm -rf /var/lib/apt/lists/* 
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=${USER_UID}
+ARG WS_BASENAME=repo
 
-# rosdep initialisieren
-RUN rosdep init || true
-RUN rosdep update
+# Delete user if it exists in container (e.g Ubuntu Noble: ubuntu)
+RUN if id -u $USER_UID ; then userdel `id -un $USER_UID` ; fi
 
-# Workspace vorbereiten
-ENV ROS_WS=/workspaces/ros2_ws
-RUN mkdir -p $ROS_WS/src
+# Create the user + Basis-Setup
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        sudo \
+        python3-pip python3-dev build-essential \
+    && rm -rf /var/lib/apt/lists/* \
+    && echo "$USERNAME ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME \
+    && mkdir -p /home/$USERNAME/ros2_ws/$WS_BASENAME \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME/ros2_ws
 
-WORKDIR $ROS_WS
+ENV SHELL=/bin/bash
+
+COPY requirements.txt /requirements.txt
+RUN pip install --break-system-packages --no-deps -r /requirements.txt
+
+RUN usermod -a -G dialout ${USERNAME}
 
 CMD ["/bin/bash"]
