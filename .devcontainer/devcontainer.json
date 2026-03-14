@@ -11,7 +11,7 @@
         }
     },
     "workspaceFolder": "/home/${localEnv:USERNAME}/ros2_ws",
-    "workspaceMount": "source=${localWorkspaceFolder},target=/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename}/src,type=bind",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename},type=bind",
     "customizations": {
         "vscode": {
             "settings": {
@@ -51,6 +51,7 @@
         "ROS_DOMAIN_ID": "100",
         "GZ_SIM_RESOURCE_PATH": "/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename}/src",
         "FASTRTPS_DEFAULT_PROFILES_FILE": "/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename}/src/IsaacSim-ros_workspaces/jazzy_ws/fastdds.xml"
+        
     },
     "runArgs": [
         "--hostname=${localWorkspaceFolderBasename}-devcontainer"
