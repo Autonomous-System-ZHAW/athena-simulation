@@ -1,0 +1,4 @@
+# ignores all src files expect /IsaacSim-ros_workspaces
+src/*
+!src/IsaacSim-ros_workspaces/
+!src/IsaacSim-ros_workspaces/**

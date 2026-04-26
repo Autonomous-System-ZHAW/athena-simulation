@@ -1,17 +1,17 @@
 {
     "name": "${localWorkspaceFolderBasename} ROS2 Dev-Container",
     "privileged": true,
-    "remoteUser": "${localEnv:USERNAME}",
+    "remoteUser": "${localEnv:USER}",
     "build": {
         "context": "..",
         "dockerfile": "../src/IsaacSim-ros_workspaces/dockerfiles/ubuntu_24_jazzy_python_312_minimal.dockerfile",
         "args": {
-            "USERNAME": "${localEnv:USERNAME}",
+            "USER": "${localEnv:USER}",
             "WS_BASENAME": "${localWorkspaceFolderBasename}"
         }
     },
-    "workspaceFolder": "/home/${localEnv:USERNAME}/ros2_ws",
-    "workspaceMount": "source=${localWorkspaceFolder},target=/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename},type=bind",
+    "workspaceFolder": "/home/${localEnv:USER}/ros2_ws",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/${localEnv:USER}/ros2_ws/${localWorkspaceFolderBasename},type=bind",
     "customizations": {
         "vscode": {
             "settings": {
@@ -48,19 +48,20 @@
         }
     },
     "containerEnv": {
-        "ROS_DOMAIN_ID": "100",
-        "GZ_SIM_RESOURCE_PATH": "/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename}/src",
-        "FASTRTPS_DEFAULT_PROFILES_FILE": "/home/${localEnv:USERNAME}/ros2_ws/${localWorkspaceFolderBasename}/src/IsaacSim-ros_workspaces/jazzy_ws/fastdds.xml"
+        "ROS_DOMAIN_ID": "0",
+        "GZ_SIM_RESOURCE_PATH": "/home/${localEnv:USER}/ros2_ws/${localWorkspaceFolderBasename}/src",
+        "FASTRTPS_DEFAULT_PROFILES_FILE": "/home/${localEnv:USER}/ros2_ws/${localWorkspaceFolderBasename}/src/IsaacSim-ros_workspaces/jazzy_ws/fastdds.xml"
         
     },
     "runArgs": [
-        "--hostname=${localWorkspaceFolderBasename}-devcontainer"
+        "--hostname=${localWorkspaceFolderBasename}-devcontainer",
+        "--net=host"
     ],
     "mounts": [
     ],
     "features": {
         "ghcr.io/devcontainers/features/git": {}
     },
-    "postCreateCommand": "sudo apt-get update && rosdep update && rosdep install --from-paths . --ignore-src --rosdistro $ROS_DISTRO -r -y",
+    "postCreateCommand": "vcs import athena-simulation/src < ${containerWorkspaceFolder}/${localWorkspaceFolderBasename}/ros2.repos --recursive && sudo apt-get update && rosdep update && rosdep install --from-paths . --ignore-src --rosdistro $ROS_DISTRO -r -y && pip install --break-system-packages --no-deps -r athena-simulation/.devcontainer/requirements.txt",
     "postStartCommand": "/bin/bash -c 'rm -rf build/ install/ log/ && source /opt/ros/$ROS_DISTRO/setup.bash && colcon build --symlink-install'"
 }
